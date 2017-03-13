@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- web-app标签：其它的元素都要写在这里 -->
+<web-app version="2.5" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<!-- 前端控制器在这里配置 -->
+	<servlet>
+		<servlet-name>springmvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+													<!--shift+ctrl+t/r  快速搜索类/文件  -->
+		 <init-param>			<!--初始化参数 -->
+		 	<param-name>contextConfigLocation</param-name>
+		 	<param-value>classpath:com/lsq/meituan/config/springmvc.xml</param-value>
+		 </init-param>
+		 <!-- 
+		 <load-on-startup>1</load-on-startup>
+		  -->	
+		 	<!-- 随容器一起启动 -->
+		 <!-- 
+		1)load-on-startup元素标记容器是否在启动的时候就加载这个servlet(实例化并调用其init()方法)。 init英文释意为初始
+
+		2)它的值必须是一个整数，表示servlet应该被载入的顺序
+
+		2)当值为0或者大于0时，表示容器在应用启动时就加载并初始化这个servlet；
+
+		3)当值小于0或者没有指定时，则表示容器在该servlet被选择时才会去加载。
+
+		4)正数的值越小，该servlet的优先级越高，应用启动时就越先加载。
+
+		5)当值相同时，容器就会自己选择顺序来加载。
+		 -->
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springmvc</servlet-name>
+		<url-pattern>*.action</url-pattern>				
+		<!-- 
+		① 完全匹配
+  		<url-pattern>/test/list.do</url-pattern>  
+
+		② 路径匹配
+ 		 <url-pattern>/*</url-pattern> struts2匹配根路径下的全部请求
+
+		③ 扩展名匹配
+		  <url-pattern>*.do</url-pattern> struts1
+		  <url-pattern>*.html</url-pattern> 匹配全部html结尾的请求
+ 		 <url-pattern>*</url-pattern> 不能用*，否则报错
+		 -->
+	</servlet-mapping>
+	<!--  -->	
+	<context-param>				<!-- 用来设定web站台的环境参数 -->
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/classes/com/lsq/meituan/config/applicationContext.xml</param-value>
+	</context-param>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<!-- 字符集过滤器 -->
+  	<filter>
+  		<filter-name>CharacterEncodingFilter</filter-name>
+  		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+  		<init-param>
+  			<param-name>encoding</param-name>
+  			<param-value>UTF-8</param-value>
+  		</init-param>
+  	</filter>
+  	<filter-mapping>
+  		<filter-name>CharacterEncodingFilter</filter-name>
+  		<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+  	
+  	<!-- 登录过滤器 -->
+  	<filter>
+  		<filter-name>UsersFilter</filter-name>
+  		<filter-class>com.lsq.meituan.filter.UsersFilter</filter-class>
+  	</filter>
+  	<filter-mapping>
+  		<filter-name>UsersFilter</filter-name>
+  		<url-pattern>/sellerMain.jsp</url-pattern>
+  	</filter-mapping>
+  	 	<filter>
+  		<filter-name>AdminFilter</filter-name>
+  		<filter-class>com.lsq.meituan.filter.AdminFilter</filter-class>
+  	</filter>
+  	<filter-mapping>
+  		<filter-name>AdminFilter</filter-name>
+  		<url-pattern>/adminMain.jsp</url-pattern>
+  	</filter-mapping>
+  	<!-- 监听器，在线人数 -->
+  	
+  	<listener>
+  		<listener-class>com.lsq.meituan.listener.NumberListener</listener-class>
+  	</listener>
+  	 
+</web-app>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsq.meituan.mapper.MessageMapper" >
+  <resultMap id="BaseResultMap" type="com.lsq.meituan.pojo.Message" >
+    <id column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="uusername" property="uusername" jdbcType="VARCHAR" />
+    <result column="mtitle" property="mtitle" jdbcType="VARCHAR" />
+    <result column="mtype" property="mtype" jdbcType="INTEGER" />
+    <result column="msign" property="msign" jdbcType="INTEGER" />
+    <result column="mimage" property="mimage" jdbcType="VARCHAR" />
+    <result column="mimage2" property="mimage2" jdbcType="VARCHAR" />
+    <result column="mcontent" property="mcontent" jdbcType="VARCHAR" />
+    <result column="usertime" property="usertime" jdbcType="TIMESTAMP" />
+    <result column="admintime" property="admintime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    mid, uusername, mtitle, mtype, msign, mimage, mimage2, mcontent, usertime, admintime
+  </sql>
+  
+  <select id="selectByUusername" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from message
+    where mtype = 0 and uusername = #{uusername} order by mid desc
+  </select>
+  
+  <select id="selectByUusernamePage" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from message
+    where mtype = 0 and uusername = #{uusername} order by mid desc 
+    limit #{lastdata},#{pageSize} 
+  </select>
+  
+  
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    *
+    from message 
+    where mtype = 1 order by mid desc
+  </select>
+	  
+  <select id="selectAllPage" resultMap="BaseResultMap">
+    select 
+    *
+    from message  
+    where mtype = 1  order by mid desc
+    limit #{lastdata},#{pageSize}
+  </select>
+	  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from message
+    where mid = #{mid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from message
+    where mid = #{mid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lsq.meituan.pojo.Message" >
+    insert into message (mid, uusername, mtitle, 
+      mtype, msign, mimage, 
+      mimage2, mcontent, usertime, 
+      admintime)
+    values (#{mid,jdbcType=INTEGER}, #{uusername,jdbcType=VARCHAR}, #{mtitle,jdbcType=VARCHAR}, 
+      #{mtype,jdbcType=INTEGER}, #{msign,jdbcType=INTEGER}, #{mimage,jdbcType=VARCHAR}, 
+      #{mimage2,jdbcType=VARCHAR}, #{mcontent,jdbcType=VARCHAR}, #{usertime,jdbcType=TIMESTAMP}, 
+      #{admintime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lsq.meituan.pojo.Message" >
+    insert into message
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="uusername != null" >
+        uusername,
+      </if>
+      <if test="mtitle != null" >
+        mtitle,
+      </if>
+      <if test="mtype != null" >
+        mtype,
+      </if>
+      <if test="msign != null" >
+        msign,
+      </if>
+      <if test="mimage != null" >
+        mimage,
+      </if>
+      <if test="mimage2 != null" >
+        mimage2,
+      </if>
+      <if test="mcontent != null" >
+        mcontent,
+      </if>
+      <if test="usertime != null" >
+        usertime,
+      </if>
+      <if test="admintime != null" >
+        admintime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="uusername != null" >
+        #{uusername,jdbcType=VARCHAR},
+      </if>
+      <if test="mtitle != null" >
+        #{mtitle,jdbcType=VARCHAR},
+      </if>
+      <if test="mtype != null" >
+        #{mtype,jdbcType=INTEGER},
+      </if>
+      <if test="msign != null" >
+        #{msign,jdbcType=INTEGER},
+      </if>
+      <if test="mimage != null" >
+        #{mimage,jdbcType=VARCHAR},
+      </if>
+      <if test="mimage2 != null" >
+        #{mimage2,jdbcType=VARCHAR},
+      </if>
+      <if test="mcontent != null" >
+        #{mcontent,jdbcType=VARCHAR},
+      </if>
+      <if test="usertime != null" >
+        #{usertime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="admintime != null" >
+        #{admintime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lsq.meituan.pojo.Message" >
+    update message
+    <set >
+      <if test="uusername != null" >
+        uusername = #{uusername,jdbcType=VARCHAR},
+      </if>
+      <if test="mtitle != null" >
+        mtitle = #{mtitle,jdbcType=VARCHAR},
+      </if>
+      <if test="mtype != null" >
+        mtype = #{mtype,jdbcType=INTEGER},
+      </if>
+      <if test="msign != null" >
+        msign = #{msign,jdbcType=INTEGER},
+      </if>
+      <if test="mimage != null" >
+        mimage = #{mimage,jdbcType=VARCHAR},
+      </if>
+      <if test="mimage2 != null" >
+        mimage2 = #{mimage2,jdbcType=VARCHAR},
+      </if>
+      <if test="mcontent != null" >
+        mcontent = #{mcontent,jdbcType=VARCHAR},
+      </if>
+      <if test="usertime != null" >
+        usertime = #{usertime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="admintime != null" >
+        admintime = #{admintime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where mid = #{mid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lsq.meituan.pojo.Message" >
+    update message
+    set uusername = #{uusername,jdbcType=VARCHAR},
+      mtitle = #{mtitle,jdbcType=VARCHAR},
+      mtype = #{mtype,jdbcType=INTEGER},
+      msign = #{msign,jdbcType=INTEGER},
+      mimage = #{mimage,jdbcType=VARCHAR},
+      mimage2 = #{mimage2,jdbcType=VARCHAR},
+      mcontent = #{mcontent,jdbcType=VARCHAR},
+      usertime = #{usertime,jdbcType=TIMESTAMP},
+      admintime = #{admintime,jdbcType=TIMESTAMP}
+    where mid = #{mid,jdbcType=INTEGER}
+  </update>
+</mapper>

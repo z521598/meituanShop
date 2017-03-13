@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsq.meituan.mapper.CommentMapper" >
+  <resultMap id="BaseResultMap" type="com.lsq.meituan.pojo.Comment" >
+    <id column="cid" property="cid" jdbcType="INTEGER" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="gid" property="gid" jdbcType="INTEGER" />
+    <result column="rating" property="rating" jdbcType="DOUBLE" />
+    <result column="cimage" property="cimage" jdbcType="VARCHAR" />
+    <result column="cresponse" property="cresponse" jdbcType="VARCHAR" />
+    <result column="contenttime" property="contenttime" jdbcType="TIMESTAMP" />
+    <result column="responsetime" property="responsetime" jdbcType="TIMESTAMP" />
+    <result column="isdelete" property="isdelete" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.lsq.meituan.pojo.Comment" extends="BaseResultMap" >
+    <result column="ccontent" property="ccontent" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    cid, uid, gid, rating, cimage, cresponse, contenttime, responsetime, isdelete
+  </sql>
+  <sql id="Blob_Column_List" >
+    ccontent
+  </sql>
+  <select id = "selectAll" resultMap="ResultMapWithBLOBs">
+  	select
+  	*
+  	from
+  	comment
+  </select>
+  <select id = "selectPageForAdmin" resultMap="ResultMapWithBLOBs">
+  	select
+  	*
+  	from
+  	comment limit #{lastdata},#{pageSize}
+  </select>
+  <select id = "selectByUid" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer">
+  	select
+  	*
+  	from
+  	comment
+  	where gid in (select gid from goods where uid = #{uid})
+  </select>
+  
+  <select id = "selectByUidPage" resultMap="ResultMapWithBLOBs">
+  	select
+  	*
+  	from
+  	comment
+  	where gid in (select gid from goods where uid = #{uid}) limit #{lastdata},#{pageSize}
+  </select>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from comment
+    where cid = #{cid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from comment
+    where cid = #{cid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lsq.meituan.pojo.Comment" >
+    insert into comment (cid, uid, gid, 
+      rating, cimage, cresponse, 
+      contenttime, responsetime, isdelete, 
+      ccontent)
+    values (#{cid,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{gid,jdbcType=INTEGER}, 
+      #{rating,jdbcType=DOUBLE}, #{cimage,jdbcType=VARCHAR}, #{cresponse,jdbcType=VARCHAR}, 
+      #{contenttime,jdbcType=TIMESTAMP}, #{responsetime,jdbcType=TIMESTAMP}, #{isdelete,jdbcType=INTEGER}, 
+      #{ccontent,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lsq.meituan.pojo.Comment" >
+    insert into comment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="gid != null" >
+        gid,
+      </if>
+      <if test="rating != null" >
+        rating,
+      </if>
+      <if test="cimage != null" >
+        cimage,
+      </if>
+      <if test="cresponse != null" >
+        cresponse,
+      </if>
+      <if test="contenttime != null" >
+        contenttime,
+      </if>
+      <if test="responsetime != null" >
+        responsetime,
+      </if>
+      <if test="isdelete != null" >
+        isdelete,
+      </if>
+      <if test="ccontent != null" >
+        ccontent,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="gid != null" >
+        #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="rating != null" >
+        #{rating,jdbcType=DOUBLE},
+      </if>
+      <if test="cimage != null" >
+        #{cimage,jdbcType=VARCHAR},
+      </if>
+      <if test="cresponse != null" >
+        #{cresponse,jdbcType=VARCHAR},
+      </if>
+      <if test="contenttime != null" >
+        #{contenttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="responsetime != null" >
+        #{responsetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isdelete != null" >
+        #{isdelete,jdbcType=INTEGER},
+      </if>
+      <if test="ccontent != null" >
+        #{ccontent,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lsq.meituan.pojo.Comment" >
+    update comment
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="gid != null" >
+        gid = #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="rating != null" >
+        rating = #{rating,jdbcType=DOUBLE},
+      </if>
+      <if test="cimage != null" >
+        cimage = #{cimage,jdbcType=VARCHAR},
+      </if>
+      <if test="cresponse != null" >
+        cresponse = #{cresponse,jdbcType=VARCHAR},
+      </if>
+      <if test="contenttime != null" >
+        contenttime = #{contenttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="responsetime != null" >
+        responsetime = #{responsetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isdelete != null" >
+        isdelete = #{isdelete,jdbcType=INTEGER},
+      </if>
+      <if test="ccontent != null" >
+        ccontent = #{ccontent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.lsq.meituan.pojo.Comment" >
+    update comment
+    set uid = #{uid,jdbcType=INTEGER},
+      gid = #{gid,jdbcType=INTEGER},
+      rating = #{rating,jdbcType=DOUBLE},
+      cimage = #{cimage,jdbcType=VARCHAR},
+      cresponse = #{cresponse,jdbcType=VARCHAR},
+      contenttime = #{contenttime,jdbcType=TIMESTAMP},
+      responsetime = #{responsetime,jdbcType=TIMESTAMP},
+      isdelete = #{isdelete,jdbcType=INTEGER},
+      ccontent = #{ccontent,jdbcType=VARCHAR}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lsq.meituan.pojo.Comment" >
+    update comment
+    set uid = #{uid,jdbcType=INTEGER},
+      gid = #{gid,jdbcType=INTEGER},
+      rating = #{rating,jdbcType=DOUBLE},
+      cimage = #{cimage,jdbcType=VARCHAR},
+      cresponse = #{cresponse,jdbcType=VARCHAR},
+      contenttime = #{contenttime,jdbcType=TIMESTAMP},
+      responsetime = #{responsetime,jdbcType=TIMESTAMP},
+      isdelete = #{isdelete,jdbcType=INTEGER}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+</mapper>

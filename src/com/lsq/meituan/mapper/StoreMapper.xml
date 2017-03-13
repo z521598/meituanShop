@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsq.meituan.mapper.StoreMapper" >
+  <resultMap id="BaseResultMap" type="com.lsq.meituan.pojo.Store" >
+    <id column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="stype" property="stype" jdbcType="VARCHAR" />
+    <result column="saddress" property="saddress" jdbcType="VARCHAR" />
+    <result column="srating" property="srating" jdbcType="INTEGER" />
+    <result column="spermit" property="spermit" jdbcType="VARCHAR" />
+    <result column="sperson" property="sperson" jdbcType="VARCHAR" />
+    <result column="spidcard" property="spidcard" jdbcType="VARCHAR" />
+    <result column="shomephone" property="shomephone" jdbcType="VARCHAR" />
+    <result column="simage1" property="simage1" jdbcType="VARCHAR" />
+    <result column="simage2" property="simage2" jdbcType="VARCHAR" />
+    <result column="simage3" property="simage3" jdbcType="VARCHAR" />
+    <result column="simage4" property="simage4" jdbcType="VARCHAR" />
+    <result column="simage5" property="simage5" jdbcType="VARCHAR" />
+    <result column="scredit" property="scredit" jdbcType="INTEGER" />
+    <result column="ssign" property="ssign" jdbcType="INTEGER" />
+    <result column="suptime" property="suptime" jdbcType="TIMESTAMP" />
+    <result column="spasstime" property="spasstime" jdbcType="TIMESTAMP" />
+    <result column="sdealtime" property="sdealtime" jdbcType="TIMESTAMP" />
+    <result column="ssealtime" property="ssealtime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.lsq.meituan.pojo.Store" extends="BaseResultMap" >
+    <result column="sdescription" property="sdescription" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="GoodsListMap" type="com.lsq.meituan.pojo.Store" extends="BaseResultMap">
+  	<result column="sdescription" property="sdescription" jdbcType="VARCHAR" />
+  	<collection property="goodsList"  ofType="com.lsq.meituan.pojo.Goods">
+  		<result column="gid" property="gid" jdbcType="INTEGER" />
+	  	<result column="gname" property="gname" jdbcType="VARCHAR" />
+	    <result column="gnum" property="gnum" jdbcType="INTEGER" />
+	    <result column="gpersonnum" property="gpersonnum" jdbcType="VARCHAR" />
+	    <result column="gtype" property="gtype" jdbcType="VARCHAR" />
+	    <result column="uid" property="uid" jdbcType="INTEGER" />
+	    <result column="goldprice" property="goldprice" jdbcType="DOUBLE" />
+	    <result column="gprice" property="gprice" jdbcType="DOUBLE" />
+	    <result column="gcontent" property="gcontent" jdbcType="VARCHAR" />
+	    <result column="gcover" property="gcover" jdbcType="VARCHAR" />
+	    <result column="onsaletime" property="onsaletime" jdbcType="TIMESTAMP" />
+	    <result column="isonsale" property="isonsale" jdbcType="INTEGER" />
+	    <result column="gstate" property="gstate" jdbcType="INTEGER" />
+  	</collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    sid, uid, stype, saddress, srating, spermit, sperson, spidcard, shomephone, simage1, 
+    simage2, simage3, simage4, simage5, scredit, ssign, suptime, spasstime, sdealtime, 
+    ssealtime
+  </sql>
+  <sql id="Blob_Column_List" >
+    sdescription
+  </sql>
+  
+  <!-- 一对多，根据店铺ID查询店铺以及商品 -->
+  <select id="selectStoreAndGoodsBySid" resultMap="GoodsListMap">
+  	SELECT store.sid, stype, saddress, srating, spermit, sperson, spidcard, sdescription,shomephone, simage1,goods.`gid`,`gname`, `gnum`, `gpersonnum`, `gtype`, `goldprice`, `gprice`, `gcontent`, `gcover`, `gdescription`, `onsaletime`, `isonsale`, `gstate` 
+  	FROM goods,store 
+  	WHERE (SELECT uid FROM store WHERE sid = #{sid}) = goods.uid AND sid = #{sid}	
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from store
+    where sid = #{sid,jdbcType=INTEGER}
+  </select>
+  <select id="selcetAll" resultMap="ResultMapWithBLOBs">
+    select 
+   	*
+    from store where ssign = 1
+  </select>
+  <select id="selectByUid" resultMap="ResultMapWithBLOBs">
+    select 
+   	*
+    from store where uid = #{uid} order by sid desc limit 0,1
+  </select>
+  
+  <select id="selcetAllForAdmin" resultMap="ResultMapWithBLOBs">
+    select 
+   	*
+    from store 
+  </select>
+	<!-- 分页 -->
+	<select id="selcetPage" resultMap="ResultMapWithBLOBs">
+    select 
+   	*
+    from store  limit #{lastdata},#{pageSize}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from store
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lsq.meituan.pojo.Store" >
+    insert into store (sid, uid, stype, 
+      saddress, srating, spermit, 
+      sperson, spidcard, shomephone, 
+      simage1, simage2, simage3, 
+      simage4, simage5, scredit, 
+      ssign, suptime, spasstime, 
+      sdealtime, ssealtime, sdescription
+      )
+    values (#{sid,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{stype,jdbcType=VARCHAR}, 
+      #{saddress,jdbcType=VARCHAR}, #{srating,jdbcType=INTEGER}, #{spermit,jdbcType=VARCHAR}, 
+      #{sperson,jdbcType=VARCHAR}, #{spidcard,jdbcType=VARCHAR}, #{shomephone,jdbcType=VARCHAR}, 
+      #{simage1,jdbcType=VARCHAR}, #{simage2,jdbcType=VARCHAR}, #{simage3,jdbcType=VARCHAR}, 
+      #{simage4,jdbcType=VARCHAR}, #{simage5,jdbcType=VARCHAR}, #{scredit,jdbcType=INTEGER}, 
+      #{ssign,jdbcType=INTEGER}, #{suptime,jdbcType=TIMESTAMP}, #{spasstime,jdbcType=TIMESTAMP}, 
+      #{sdealtime,jdbcType=TIMESTAMP}, #{ssealtime,jdbcType=TIMESTAMP}, #{sdescription,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.lsq.meituan.pojo.Store" >
+    insert into store
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="stype != null" >
+        stype,
+      </if>
+      <if test="saddress != null" >
+        saddress,
+      </if>
+      <if test="srating != null" >
+        srating,
+      </if>
+      <if test="spermit != null" >
+        spermit,
+      </if>
+      <if test="sperson != null" >
+        sperson,
+      </if>
+      <if test="spidcard != null" >
+        spidcard,
+      </if>
+      <if test="shomephone != null" >
+        shomephone,
+      </if>
+      <if test="simage1 != null" >
+        simage1,
+      </if>
+      <if test="simage2 != null" >
+        simage2,
+      </if>
+      <if test="simage3 != null" >
+        simage3,
+      </if>
+      <if test="simage4 != null" >
+        simage4,
+      </if>
+      <if test="simage5 != null" >
+        simage5,
+      </if>
+      <if test="scredit != null" >
+        scredit,
+      </if>
+      <if test="ssign != null" >
+        ssign,
+      </if>
+      <if test="suptime != null" >
+        suptime,
+      </if>
+      <if test="spasstime != null" >
+        spasstime,
+      </if>
+      <if test="sdealtime != null" >
+        sdealtime,
+      </if>
+      <if test="ssealtime != null" >
+        ssealtime,
+      </if>
+      <if test="sdescription != null" >
+        sdescription,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="stype != null" >
+        #{stype,jdbcType=VARCHAR},
+      </if>
+      <if test="saddress != null" >
+        #{saddress,jdbcType=VARCHAR},
+      </if>
+      <if test="srating != null" >
+        #{srating,jdbcType=INTEGER},
+      </if>
+      <if test="spermit != null" >
+        #{spermit,jdbcType=VARCHAR},
+      </if>
+      <if test="sperson != null" >
+        #{sperson,jdbcType=VARCHAR},
+      </if>
+      <if test="spidcard != null" >
+        #{spidcard,jdbcType=VARCHAR},
+      </if>
+      <if test="shomephone != null" >
+        #{shomephone,jdbcType=VARCHAR},
+      </if>
+      <if test="simage1 != null" >
+        #{simage1,jdbcType=VARCHAR},
+      </if>
+      <if test="simage2 != null" >
+        #{simage2,jdbcType=VARCHAR},
+      </if>
+      <if test="simage3 != null" >
+        #{simage3,jdbcType=VARCHAR},
+      </if>
+      <if test="simage4 != null" >
+        #{simage4,jdbcType=VARCHAR},
+      </if>
+      <if test="simage5 != null" >
+        #{simage5,jdbcType=VARCHAR},
+      </if>
+      <if test="scredit != null" >
+        #{scredit,jdbcType=INTEGER},
+      </if>
+      <if test="ssign != null" >
+        #{ssign,jdbcType=INTEGER},
+      </if>
+      <if test="suptime != null" >
+        #{suptime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="spasstime != null" >
+        #{spasstime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sdealtime != null" >
+        #{sdealtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ssealtime != null" >
+        #{ssealtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sdescription != null" >
+        #{sdescription,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lsq.meituan.pojo.Store" >
+    update store
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="stype != null" >
+        stype = #{stype,jdbcType=VARCHAR},
+      </if>
+      <if test="saddress != null" >
+        saddress = #{saddress,jdbcType=VARCHAR},
+      </if>
+      <if test="srating != null" >
+        srating = #{srating,jdbcType=INTEGER},
+      </if>
+      <if test="spermit != null" >
+        spermit = #{spermit,jdbcType=VARCHAR},
+      </if>
+      <if test="sperson != null" >
+        sperson = #{sperson,jdbcType=VARCHAR},
+      </if>
+      <if test="spidcard != null" >
+        spidcard = #{spidcard,jdbcType=VARCHAR},
+      </if>
+      <if test="shomephone != null" >
+        shomephone = #{shomephone,jdbcType=VARCHAR},
+      </if>
+      <if test="simage1 != null" >
+        simage1 = #{simage1,jdbcType=VARCHAR},
+      </if>
+      <if test="simage2 != null" >
+        simage2 = #{simage2,jdbcType=VARCHAR},
+      </if>
+      <if test="simage3 != null" >
+        simage3 = #{simage3,jdbcType=VARCHAR},
+      </if>
+      <if test="simage4 != null" >
+        simage4 = #{simage4,jdbcType=VARCHAR},
+      </if>
+      <if test="simage5 != null" >
+        simage5 = #{simage5,jdbcType=VARCHAR},
+      </if>
+      <if test="scredit != null" >
+        scredit = #{scredit,jdbcType=INTEGER},
+      </if>
+      <if test="ssign != null" >
+        ssign = #{ssign,jdbcType=INTEGER},
+      </if>
+      <if test="suptime != null" >
+        suptime = #{suptime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="spasstime != null" >
+        spasstime = #{spasstime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sdealtime != null" >
+        sdealtime = #{sdealtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ssealtime != null" >
+        ssealtime = #{ssealtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sdescription != null" >
+        sdescription = #{sdescription,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.lsq.meituan.pojo.Store" >
+    update store
+    set uid = #{uid,jdbcType=INTEGER},
+      stype = #{stype,jdbcType=VARCHAR},
+      saddress = #{saddress,jdbcType=VARCHAR},
+      srating = #{srating,jdbcType=INTEGER},
+      spermit = #{spermit,jdbcType=VARCHAR},
+      sperson = #{sperson,jdbcType=VARCHAR},
+      spidcard = #{spidcard,jdbcType=VARCHAR},
+      shomephone = #{shomephone,jdbcType=VARCHAR},
+      simage1 = #{simage1,jdbcType=VARCHAR},
+      simage2 = #{simage2,jdbcType=VARCHAR},
+      simage3 = #{simage3,jdbcType=VARCHAR},
+      simage4 = #{simage4,jdbcType=VARCHAR},
+      simage5 = #{simage5,jdbcType=VARCHAR},
+      scredit = #{scredit,jdbcType=INTEGER},
+      ssign = #{ssign,jdbcType=INTEGER},
+      suptime = #{suptime,jdbcType=TIMESTAMP},
+      spasstime = #{spasstime,jdbcType=TIMESTAMP},
+      sdealtime = #{sdealtime,jdbcType=TIMESTAMP},
+      ssealtime = #{ssealtime,jdbcType=TIMESTAMP},
+      sdescription = #{sdescription,jdbcType=VARCHAR}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lsq.meituan.pojo.Store" >
+    update store
+    set uid = #{uid,jdbcType=INTEGER},
+      stype = #{stype,jdbcType=VARCHAR},
+      saddress = #{saddress,jdbcType=VARCHAR},
+      srating = #{srating,jdbcType=INTEGER},
+      spermit = #{spermit,jdbcType=VARCHAR},
+      sperson = #{sperson,jdbcType=VARCHAR},
+      spidcard = #{spidcard,jdbcType=VARCHAR},
+      shomephone = #{shomephone,jdbcType=VARCHAR},
+      simage1 = #{simage1,jdbcType=VARCHAR},
+      simage2 = #{simage2,jdbcType=VARCHAR},
+      simage3 = #{simage3,jdbcType=VARCHAR},
+      simage4 = #{simage4,jdbcType=VARCHAR},
+      simage5 = #{simage5,jdbcType=VARCHAR},
+      scredit = #{scredit,jdbcType=INTEGER},
+      ssign = #{ssign,jdbcType=INTEGER},
+      suptime = #{suptime,jdbcType=TIMESTAMP},
+      spasstime = #{spasstime,jdbcType=TIMESTAMP},
+      sdealtime = #{sdealtime,jdbcType=TIMESTAMP},
+      ssealtime = #{ssealtime,jdbcType=TIMESTAMP}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+</mapper>

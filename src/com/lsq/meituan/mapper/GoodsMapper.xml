@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsq.meituan.mapper.GoodsMapper" >
+  <resultMap id="BaseResultMap" type="com.lsq.meituan.pojo.Goods" >
+    <id column="gid" property="gid" jdbcType="INTEGER" />
+    <result column="gname" property="gname" jdbcType="VARCHAR" />
+    <result column="gnum" property="gnum" jdbcType="INTEGER" />
+    <result column="gpersonnum" property="gpersonnum" jdbcType="VARCHAR" />
+    <result column="gtype" property="gtype" jdbcType="VARCHAR" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="goldprice" property="goldprice" jdbcType="DOUBLE" />
+    <result column="gprice" property="gprice" jdbcType="DOUBLE" />
+    <result column="gcontent" property="gcontent" jdbcType="VARCHAR" />
+    <result column="gcover" property="gcover" jdbcType="VARCHAR" />
+    <result column="onsaletime" property="onsaletime" jdbcType="TIMESTAMP" />
+    <result column="isonsale" property="isonsale" jdbcType="INTEGER" />
+    <result column="gstate" property="gstate" jdbcType="INTEGER" />
+  </resultMap>
+<!-- 旧的 -->
+  <resultMap id="ResultMapWithBLOBs" type="com.lsq.meituan.pojo.Goods" extends="BaseResultMap" >
+    <result column="gdescription" property="gdescription" jdbcType="VARCHAR" />
+    <collection property="commentlist" ofType="com.lsq.meituan.pojo.Comment">
+	    <result column="cid" property="cid" jdbcType="INTEGER" />
+	    <result column="uid" property="uid" jdbcType="INTEGER" />
+	    <result column="rating" property="rating" jdbcType="DOUBLE" />
+	    <result column="ccontent" property="ccontent" jdbcType="VARCHAR" />
+		<result column="cresponse" property="cresponse" jdbcType="VARCHAR"  />
+	</collection>
+  </resultMap>
+<!-- 一对多 -->
+  <resultMap id="GoodsAndCommentMap" type="com.lsq.meituan.pojo.Goods" extends="BaseResultMap" >
+    <result column="gdescription" property="gdescription" jdbcType="VARCHAR" />
+    <collection property="commentlist" ofType="com.lsq.meituan.pojo.Comment">
+	    <result column="cid" property="cid" jdbcType="INTEGER" />
+	    <result column="uid" property="uid" jdbcType="INTEGER" />
+	    <result column="rating" property="rating" jdbcType="DOUBLE" />
+	    <result column="ccontent" property="ccontent" jdbcType="VARCHAR" />
+		<result column="cresponse" property="cresponse" jdbcType="VARCHAR"  />
+	</collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    gid, gname, gnum, gpersonnum, gtype, uid, goldprice, gprice, gcontent, gcover, onsaletime, 
+    isonsale, gstate
+  </sql>
+  
+  
+
+  
+  <sql id="Blob_Column_List" >
+    gdescription
+  </sql>
+  <select id="selectAll" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from goods
+  </select>
+  <!-- 分页 -->
+    <select id="selectPage" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from goods limit #{lastdata},#{pageSize}
+  </select>
+  
+  <!-- 模糊查询 -->
+  <select id="selectForSearch" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from goods where gname like #{gname} and isonsale = 1 and gstate = 1 and 
+    ((SELECT ssign FROM store WHERE uid = goods.uid) = 1)
+  </select>
+  
+  <select id="selectByGtype" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String" >
+   SELECT 
+    *
+    FROM goods
+    WHERE gtype = #{gtype,jdbcType=INTEGER} and isonsale = 1 and gstate = 1 and 
+    ((SELECT ssign FROM store WHERE uid = goods.uid) = 1)
+  </select>
+    <select id="selectByAdv" resultMap="ResultMapWithBLOBs">
+    SELECT 
+ 	*
+    FROM goods,advertise
+    WHERE goods.gid IN (SELECT DISTINCT gid  FROM advertise WHERE asign = 1 ORDER BY aorder) AND isonsale = 1 AND gstate = 1 AND 
+    ((SELECT ssign FROM store WHERE uid = goods.uid) = 1)  AND advertise.gid = goods.gid 
+    ORDER BY advertise.aorder 
+  </select>
+  <select id="selectByUid" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from goods
+    where uid = #{uid,jdbcType=INTEGER} 
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    SELECT 
+    *
+    FROM goods
+    WHERE goods.gid = #{gid}
+  </select>
+  <!-- 一对多 左外链接-->
+  <select id="selectByGidAndComment" resultMap = "GoodsAndCommentMap" parameterType="java.lang.Integer">
+    SELECT 
+    goods.`gid`,`gname`, `gnum`, `gpersonnum`, `gtype`, `goldprice`, `gprice`, `gcontent`, `gcover`, `gdescription`, `onsaletime`, `isonsale`, `gstate`,
+    comment.cid,rating,ccontent,cresponse
+    FROM goods LEFT JOIN COMMENT
+    ON comment.gid = goods.gid WHERE goods.gid = #{gid}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from goods
+    where gid = #{gid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lsq.meituan.pojo.Goods" >
+    insert into goods (gid, gname, gnum, 
+      gpersonnum, gtype, uid, 
+      goldprice, gprice, gcontent, 
+      gcover, onsaletime, isonsale, 
+      gstate, gdescription)
+    values (#{gid,jdbcType=INTEGER}, #{gname,jdbcType=VARCHAR}, #{gnum,jdbcType=INTEGER}, 
+      #{gpersonnum,jdbcType=VARCHAR}, #{gtype,jdbcType=VARCHAR}, #{uid,jdbcType=INTEGER}, 
+      #{goldprice,jdbcType=DOUBLE}, #{gprice,jdbcType=DOUBLE}, #{gcontent,jdbcType=VARCHAR}, 
+      #{gcover,jdbcType=VARCHAR}, #{onsaletime,jdbcType=TIMESTAMP}, #{isonsale,jdbcType=INTEGER}, 
+      #{gstate,jdbcType=INTEGER}, #{gdescription,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lsq.meituan.pojo.Goods" >
+    insert into goods
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="gid != null" >
+        gid,
+      </if>
+      <if test="gname != null" >
+        gname,
+      </if>
+      <if test="gnum != null" >
+        gnum,
+      </if>
+      <if test="gpersonnum != null" >
+        gpersonnum,
+      </if>
+      <if test="gtype != null" >
+        gtype,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="goldprice != null" >
+        goldprice,
+      </if>
+      <if test="gprice != null" >
+        gprice,
+      </if>
+      <if test="gcontent != null" >
+        gcontent,
+      </if>
+      <if test="gcover != null" >
+        gcover,
+      </if>
+      <if test="onsaletime != null" >
+        onsaletime,
+      </if>
+      <if test="isonsale != null" >
+        isonsale,
+      </if>
+      <if test="gstate != null" >
+        gstate,
+      </if>
+      <if test="gdescription != null" >
+        gdescription,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="gid != null" >
+        #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="gname != null" >
+        #{gname,jdbcType=VARCHAR},
+      </if>
+      <if test="gnum != null" >
+        #{gnum,jdbcType=INTEGER},
+      </if>
+      <if test="gpersonnum != null" >
+        #{gpersonnum,jdbcType=VARCHAR},
+      </if>
+      <if test="gtype != null" >
+        #{gtype,jdbcType=VARCHAR},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="goldprice != null" >
+        #{goldprice,jdbcType=DOUBLE},
+      </if>
+      <if test="gprice != null" >
+        #{gprice,jdbcType=DOUBLE},
+      </if>
+      <if test="gcontent != null" >
+        #{gcontent,jdbcType=VARCHAR},
+      </if>
+      <if test="gcover != null" >
+        #{gcover,jdbcType=VARCHAR},
+      </if>
+      <if test="onsaletime != null" >
+        #{onsaletime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isonsale != null" >
+        #{isonsale,jdbcType=INTEGER},
+      </if>
+      <if test="gstate != null" >
+        #{gstate,jdbcType=INTEGER},
+      </if>
+      <if test="gdescription != null" >
+        #{gdescription,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lsq.meituan.pojo.Goods" >
+    update goods
+    <set >
+      <if test="gname != null" >
+        gname = #{gname,jdbcType=VARCHAR},
+      </if>
+      <if test="gnum != null" >
+        gnum = #{gnum,jdbcType=INTEGER},
+      </if>
+      <if test="gpersonnum != null" >
+        gpersonnum = #{gpersonnum,jdbcType=VARCHAR},
+      </if>
+      <if test="gtype != null" >
+        gtype = #{gtype,jdbcType=VARCHAR},
+      </if>
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="goldprice != null" >
+        goldprice = #{goldprice,jdbcType=DOUBLE},
+      </if>
+      <if test="gprice != null" >
+        gprice = #{gprice,jdbcType=DOUBLE},
+      </if>
+      <if test="gcontent != null" >
+        gcontent = #{gcontent,jdbcType=VARCHAR},
+      </if>
+      <if test="gcover != null" >
+        gcover = #{gcover,jdbcType=VARCHAR},
+      </if>
+      <if test="onsaletime != null" >
+        onsaletime = #{onsaletime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isonsale != null" >
+        isonsale = #{isonsale,jdbcType=INTEGER},
+      </if>
+      <if test="gstate != null" >
+        gstate = #{gstate,jdbcType=INTEGER},
+      </if>
+      <if test="gdescription != null" >
+        gdescription = #{gdescription,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where gid = #{gid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.lsq.meituan.pojo.Goods" >
+    update goods
+    set gname = #{gname,jdbcType=VARCHAR},
+      gnum = #{gnum,jdbcType=INTEGER},
+      gpersonnum = #{gpersonnum,jdbcType=VARCHAR},
+      gtype = #{gtype,jdbcType=VARCHAR},
+      uid = #{uid,jdbcType=INTEGER},
+      goldprice = #{goldprice,jdbcType=DOUBLE},
+      gprice = #{gprice,jdbcType=DOUBLE},
+      gcontent = #{gcontent,jdbcType=VARCHAR},
+      gcover = #{gcover,jdbcType=VARCHAR},
+      onsaletime = #{onsaletime,jdbcType=TIMESTAMP},
+      isonsale = #{isonsale,jdbcType=INTEGER},
+      gstate = #{gstate,jdbcType=INTEGER},
+      gdescription = #{gdescription,jdbcType=VARCHAR}
+    where gid = #{gid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lsq.meituan.pojo.Goods" >
+    update goods
+    set gname = #{gname,jdbcType=VARCHAR},
+      gnum = #{gnum,jdbcType=INTEGER},
+      gpersonnum = #{gpersonnum,jdbcType=VARCHAR},
+      gtype = #{gtype,jdbcType=VARCHAR},
+      uid = #{uid,jdbcType=INTEGER},
+      goldprice = #{goldprice,jdbcType=DOUBLE},
+      gprice = #{gprice,jdbcType=DOUBLE},
+      gcontent = #{gcontent,jdbcType=VARCHAR},
+      gcover = #{gcover,jdbcType=VARCHAR},
+      onsaletime = #{onsaletime,jdbcType=TIMESTAMP},
+      isonsale = #{isonsale,jdbcType=INTEGER},
+      gstate = #{gstate,jdbcType=INTEGER}
+    where gid = #{gid,jdbcType=INTEGER}
+  </update>
+</mapper>

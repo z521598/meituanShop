@@ -1,0 +1,41 @@
+body{font-family : '微软雅黑'; }
+td{padding : 10px}
+/*
+input[type=text]{
+	width : 100px;
+	height : 35px;
+	font-size: 18px;
+}
+*/
+input[type=radio]{
+	width : 15px;
+	height : 15px;
+	text-align : center;
+}
+/*
+select{
+	width : 30%;
+	height : 35px;
+}
+*/
+input[type=submit] {
+	color: #fff;
+	font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: #00AACC;
+	border: 1px solid #00AACC;
+	cursor: pointer;
+	font-size: 18px;
+	transition: all 0.5s ease-out;
+	-webkit-transition: all 0.5s ease-out;
+	-moz-transition: all 0.5s ease-out;
+	-ms-transition: all 0.5s ease-out;
+	-o-transition: all 0.5s ease-out;
+	outline:none;
+	margin-left :25%;
+	width: 50%;
+	height : 40px;
+}
+input[type=submit]:hover {
+	 background:#07793D;
+	 border:1px solid #07793D;
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+	<!-- 非注解式配置处理器适配器和映射器 -->
+	<!-- 第一种处理器适配器
+	<bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+	 -->
+	<!-- 第二种处理器适配器
+	<bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
+	 -->
+	
+	<!-- 第一种 处理器映射器-->
+	<!--
+		<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+	 -->
+	<!-- 配置控制器Controller -->
+	<!-- 
+	<bean name = "/test.action" class="cn.com.lsq.controller.TestCon"></bean>
+	 -->
+	<!-- 第二种 处理器映射器
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/test1.action">testCon</prop>
+			</props>
+		</property>
+	</bean>
+	 -->
+	<!-- 配置控制器Controller
+	<bean id="testCon" class="cn.com.lsq.controller.TestCon"/>
+	 -->
+	 
+	<!-- 注解式配置处理器适配器和映射器 -->	
+	<mvc:annotation-driven></mvc:annotation-driven>
+	
+
+	 
+	<!-- 组件扫描方式加载控制器 -->
+	<!-- 要求.xml与.java文件写在同一文件夹下 -->
+	<context:component-scan base-package="com.lsq.meituan.controller" />
+	<!-- 组件扫描方式加载mapper -->
+	 
+	<context:component-scan base-package="com.lsq.meituan.mapper" />
+	<!-- 视图解析器	 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 视图前缀 -->
+		<property name="prefix" value = ""></property>
+		<!-- 视图后缀 -->
+		<property name="suffix" value = ""></property>
+	</bean>
+	<!-- 文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件的最大尺寸为5MB -->
+		<property name="maxUploadSize">
+			<value>5242880</value>
+		</property>
+	</bean>
+	
+
+</beans>

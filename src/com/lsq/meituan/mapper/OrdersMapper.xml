@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsq.meituan.mapper.OrdersMapper" >
+  <resultMap id="BaseResultMap" type="com.lsq.meituan.pojo.Orders" >
+    <id column="oid" property="oid" jdbcType="INTEGER" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="gid" property="gid" jdbcType="INTEGER" />
+    <result column="ticket" property="ticket" jdbcType="VARCHAR" />
+    <result column="ocreatetime" property="ocreatetime" jdbcType="TIMESTAMP" />
+    <result column="oreturntime" property="oreturntime" jdbcType="TIMESTAMP" />
+    <result column="opaytime" property="opaytime" jdbcType="TIMESTAMP" />
+    <result column="ousetime" property="ousetime" jdbcType="TIMESTAMP" />
+    <result column="ocanceltime" property="ocanceltime" jdbcType="TIMESTAMP" />
+    <result column="osign" property="osign" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    oid, uid, gid, ticket, ocreatetime, oreturntime, opaytime, ousetime, ocanceltime, 
+    osign
+  </sql>
+  <select id="selectByPrimaryKey" resultType="com.lsq.meituan.pojo.Orders" parameterType="java.lang.Integer" >
+    SELECT 
+  	orders.*,
+  	goods.gid,gname,gprice,gcontent,gcover,
+  	store.stype,saddress,shomephone
+  	FROM orders,goods,store 
+    WHERE goods.gid = orders.gid AND goods.uid = store.uid and orders.oid = #{oid}
+  </select>
+  
+  <select id="selectByUid" resultType="com.lsq.meituan.pojo.Orders" parameterType="java.lang.Integer" >
+   SELECT 
+  	orders.*,
+  	goods.gid,gname,gprice,gcontent,gcover,
+  	store.stype,saddress,shomephone
+  	FROM orders,goods,store 
+  	WHERE goods.gid = orders.gid AND goods.uid = store.uid and orders.uid = #{uid}
+  </select>
+  
+  <!-- 一对一，多表联合查询  用户的不同订单-->
+  <!-- resultType为pojo -->
+  <select id = "selectByOsign" resultType="com.lsq.meituan.pojo.Orders">
+  	SELECT 
+  	orders.*,
+  	goods.gid,gname,gprice,gcontent,gcover,
+  	store.stype,saddress,shomephone
+  	FROM orders,goods,store 
+  	WHERE goods.gid = orders.gid AND goods.uid = store.uid and orders.osign = #{osign} and orders.uid = #{uid}
+  </select>
+  
+  <select id="selectBySellerUid" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	SELECT 
+  	orders.*,
+  	goods.gid,gname,gprice,gcontent,gcover,
+  	store.stype,saddress,shomephone
+  	FROM orders,goods,store 
+  	WHERE goods.gid = orders.gid AND goods.uid = store.uid AND orders.gid IN ( SELECT gid FROM goods WHERE uid = #{sellerUid}) order by orders.ocreatetime desc 
+  </select>
+  <select id="selectBySellerUidPage" resultMap="BaseResultMap">
+  	SELECT 
+  	orders.*,
+  	goods.gid,gname,gprice,gcontent,gcover,
+  	store.stype,saddress,shomephone
+  	FROM orders,goods,store 
+  	WHERE goods.gid = orders.gid AND goods.uid = store.uid AND orders.gid IN ( SELECT gid FROM goods WHERE uid = #{sellerUid}) order by orders.ocreatetime desc  limit #{lastdata},#{pageSize}
+  </select>
+  
+  <!-- 统计,根据商户名字查询各个商品的销售数量  有时间段 -->
+  <select id = "selectByTimeAndSellerId" resultType ="com.lsq.meituan.pojo.Count">
+  	SELECT goods.gname,COUNT(orders.gid)  AS number FROM orders,goods WHERE orders.gid = goods.gid AND ocreatetime BETWEEN #{start} AND #{over} AND orders.gid IN (SELECT gid FROM goods WHERE uid = #{sellerId})  GROUP BY orders.gid LIMIT 0,10
+  </select>
+  <select id = "selectSumMoneyByTime" resultType ="java.lang.Integer">
+  SELECT SUM(goods.gprice) FROM orders,goods WHERE orders.gid = goods.gid AND ocreatetime BETWEEN #{start} AND #{over} AND orders.gid IN (SELECT gid FROM goods WHERE uid = #{sellerId})
+  </select>
+  
+  <select id="selectAllPage" resultMap="BaseResultMap">
+  	SELECT 
+  	orders.*,goods.gid,gname,gcover,gprice
+  	FROM orders,goods 
+  	where goods.gid = orders.gid and ocreatetime between #{start} and #{over} limit #{lastdata},#{pageSize}
+  </select>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+  	SELECT 
+  	* 
+  	FROM orders where ocreatetime between #{start} and #{over}
+  </select>
+  <!-- 统计：用户 -->
+  <select id="selectUsers" resultType ="com.lsq.meituan.pojo.Count">
+SELECT users.uusername AS gname,SUM(goods.gprice) AS number
+FROM orders,goods,users 
+WHERE users.uid = orders.uid AND goods.gid = orders.gid AND ocreatetime BETWEEN  DATE_SUB(NOW(),INTERVAL 1 YEAR) AND NOW() GROUP BY orders.uid ORDER BY number desc
+  </select>
+  <!-- 统计：商户 -->
+  <select id="selectStore" resultType ="com.lsq.meituan.pojo.Count">
+  	SELECT store.stype AS gname,SUM(goods.gprice) AS number
+	FROM orders,goods,store 
+	WHERE store.uid = goods.uid  AND goods.gid = orders.gid AND ocreatetime BETWEEN  DATE_SUB(NOW(),INTERVAL 1 YEAR) AND NOW() GROUP BY store.stype ORDER BY SUM(goods.gprice) DESC
+  </select>
+  <!-- 统计：产品 -->
+  <select id="selectGoods" resultType ="com.lsq.meituan.pojo.Count">
+  	SELECT goods.gname,SUM(goods.gprice) AS `count`,COUNT(goods.gid) AS number
+	FROM orders,goods
+	WHERE goods.gid = orders.gid AND ocreatetime BETWEEN  DATE_SUB(NOW(),INTERVAL 1 YEAR) AND NOW() GROUP BY goods.gname ORDER BY SUM(goods.gprice) DESC
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from orders
+    where oid = #{oid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lsq.meituan.pojo.Orders" >
+    insert into orders (oid, uid, gid, 
+      ticket, ocreatetime, oreturntime, 
+      opaytime, ousetime, ocanceltime, 
+      osign)
+    values (#{oid,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{gid,jdbcType=INTEGER}, 
+      #{ticket,jdbcType=VARCHAR}, #{ocreatetime,jdbcType=TIMESTAMP}, #{oreturntime,jdbcType=TIMESTAMP}, 
+      #{opaytime,jdbcType=TIMESTAMP}, #{ousetime,jdbcType=TIMESTAMP}, #{ocanceltime,jdbcType=TIMESTAMP}, 
+      #{osign,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lsq.meituan.pojo.Orders" >
+    insert into orders
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="oid != null" >
+        oid,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="gid != null" >
+        gid,
+      </if>
+      <if test="ticket != null" >
+        ticket,
+      </if>
+      <if test="ocreatetime != null" >
+        ocreatetime,
+      </if>
+      <if test="oreturntime != null" >
+        oreturntime,
+      </if>
+      <if test="opaytime != null" >
+        opaytime,
+      </if>
+      <if test="ousetime != null" >
+        ousetime,
+      </if>
+      <if test="ocanceltime != null" >
+        ocanceltime,
+      </if>
+      <if test="osign != null" >
+        osign,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="oid != null" >
+        #{oid,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="gid != null" >
+        #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="ticket != null" >
+        #{ticket,jdbcType=VARCHAR},
+      </if>
+      <if test="ocreatetime != null" >
+        #{ocreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="oreturntime != null" >
+        #{oreturntime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="opaytime != null" >
+        #{opaytime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ousetime != null" >
+        #{ousetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ocanceltime != null" >
+        #{ocanceltime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="osign != null" >
+        #{osign,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByTicketAndSellerId">
+    update orders set
+    osign = 2
+    where ticket = #{ticket} and gid in (select gid from goods where uid = #{sellerId}) and osign = 1
+  </update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.lsq.meituan.pojo.Orders" >
+    update orders
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="gid != null" >
+        gid = #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="ticket != null" >
+        ticket = #{ticket,jdbcType=VARCHAR},
+      </if>
+      <if test="ocreatetime != null" >
+        ocreatetime = #{ocreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="oreturntime != null" >
+        oreturntime = #{oreturntime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="opaytime != null" >
+        opaytime = #{opaytime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ousetime != null" >
+        ousetime = #{ousetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ocanceltime != null" >
+        ocanceltime = #{ocanceltime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="osign != null" >
+        osign = #{osign,jdbcType=INTEGER},
+      </if>
+    </set>
+    where oid = #{oid,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.lsq.meituan.pojo.Orders" >
+    update orders
+    set uid = #{uid,jdbcType=INTEGER},
+      gid = #{gid,jdbcType=INTEGER},
+      ticket = #{ticket,jdbcType=VARCHAR},
+      ocreatetime = #{ocreatetime,jdbcType=TIMESTAMP},
+      oreturntime = #{oreturntime,jdbcType=TIMESTAMP},
+      opaytime = #{opaytime,jdbcType=TIMESTAMP},
+      ousetime = #{ousetime,jdbcType=TIMESTAMP},
+      ocanceltime = #{ocanceltime,jdbcType=TIMESTAMP},
+      osign = #{osign,jdbcType=INTEGER}
+    where oid = #{oid,jdbcType=INTEGER}
+  </update>
+</mapper>

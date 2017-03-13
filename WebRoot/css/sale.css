@@ -1,0 +1,28 @@
+input[type=submit] {
+	color: #fff;
+	font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: #00AACC;
+	border: 1px solid #00AACC;
+	cursor: pointer;
+	font-size: 18px;
+	transition: all 0.5s ease-out;
+	-webkit-transition: all 0.5s ease-out;
+	-moz-transition: all 0.5s ease-out;
+	-ms-transition: all 0.5s ease-out;
+	-o-transition: all 0.5s ease-out;
+	outline:none;
+	width: 60px;
+	height : 25px;
+}
+input[type=submit]:hover {
+	 background:#07793D;
+	 border:1px solid #07793D;
+}
+body{font-family : '微软雅黑'; size : 30px;}
+#start,#show{ margin : 30px 30px}
+td{
+	font-family : '微软雅黑'; size : 30px;color : #006699
+}
+table{
+	padding : 10px
+}
